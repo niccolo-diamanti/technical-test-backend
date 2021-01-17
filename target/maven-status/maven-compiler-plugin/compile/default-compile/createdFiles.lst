@@ -1,0 +1,5 @@
+com\playtomic\tests\wallet\WalletApplication.class
+com\playtomic\tests\wallet\service\PaymentService.class
+com\playtomic\tests\wallet\api\WalletController.class
+com\playtomic\tests\wallet\service\PaymentServiceException.class
+com\playtomic\tests\wallet\service\impl\ThirdPartyPaymentService.class

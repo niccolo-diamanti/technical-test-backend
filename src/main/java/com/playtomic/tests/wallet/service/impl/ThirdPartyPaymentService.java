@@ -1,8 +1,7 @@
 package com.playtomic.tests.wallet.service.impl;
 
-import com.playtomic.tests.wallet.service.PaymentServiceException;
 import com.playtomic.tests.wallet.service.PaymentService;
-
+import com.playtomic.tests.wallet.service.error.PaymentServiceException;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -10,7 +9,7 @@ import java.math.BigDecimal;
 
 /**
  * A real implementation would call to a third party's payment service (such as Stripe, Paypal, Redsys...).
- *
+ * <p>
  * This is a dummy implementation which throws an error when trying to change less than 10€.
  */
 @Service

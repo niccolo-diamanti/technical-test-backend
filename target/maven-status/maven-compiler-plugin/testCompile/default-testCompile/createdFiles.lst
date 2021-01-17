@@ -1,0 +1,2 @@
+com\playtomic\tests\wallet\WalletApplicationIT.class
+com\playtomic\tests\wallet\service\impl\ThirdPartyPaymentServiceTest.class

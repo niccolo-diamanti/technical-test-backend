@@ -1,7 +1,7 @@
 package com.playtomic.tests.wallet.service.impl;
 
 
-import com.playtomic.tests.wallet.service.PaymentServiceException;
+import com.playtomic.tests.wallet.service.error.PaymentServiceException;
 import org.junit.Test;
 
 import java.math.BigDecimal;

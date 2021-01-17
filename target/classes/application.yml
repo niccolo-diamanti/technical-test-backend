@@ -1,0 +1,34 @@
+spring.profiles.active: develop
+server:
+  port: 8090
+
+problem-module:
+  stack-traces: true
+
+logging:
+  level:
+    org:
+      springframework:
+        web:
+          filter:
+            CommonsRequestLoggingFilter: DEBUG
+---
+spring:
+  jpa:
+    show_sql: false
+    database: H2
+  datasource:
+    url: jdbc:h2:mem:testdb;DB_CLOSE_ON_EXIT=FALSE;IGNORECASE=TRUE
+  config:
+    activate:
+      on-profile: develop
+---
+spring:
+  jpa:
+    show_sql: false
+    database: H2
+  datasource:
+    url: jdbc:h2:mem:testdb;DB_CLOSE_ON_EXIT=FALSE;IGNORECASE=TRUE
+  config:
+    activate:
+      on-profile: test
