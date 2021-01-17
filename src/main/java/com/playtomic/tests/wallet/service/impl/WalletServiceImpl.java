@@ -14,6 +14,7 @@ import com.playtomic.tests.wallet.service.error.InsufficientBalanceException;
 import com.playtomic.tests.wallet.service.error.PaymentServiceException;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import lombok.var;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -25,7 +26,7 @@ import java.util.UUID;
 @Service
 @AllArgsConstructor
 @Slf4j
-public class WalletServiceInterface implements WalletService {
+public class WalletServiceImpl implements WalletService {
 
     private final WalletRepository _walletRepository;
     private final WalletTransactionHistoryRepository _walletTransactionHistoryRepository;
@@ -46,25 +47,14 @@ public class WalletServiceInterface implements WalletService {
     @Override
     public Optional<WalletDto> findWalletById(long id) {
         Optional<Wallet> wallet = _walletRepository.findById(id);
-        if (wallet.isPresent()) {
-            WalletDto walletDto = new WalletDto(wallet.get());
-            walletDto.setLastTransaction(new WalletTransactionHistoryDto(getLastWalletTransactionHistory(wallet.get().getId())));
-            return Optional.of(walletDto);
-        } else {
-            return Optional.empty();
-        }
+
+        return wallet.flatMap(this::createWalletDtoResponse);
     }
 
     @Override
     public Optional<WalletDto> findWalletByUserId(UUID userId) {
         Optional<Wallet> wallet = _walletRepository.findByUserId(userId);
-        if (wallet.isPresent()) {
-            WalletDto walletDto = new WalletDto(wallet.get());
-            walletDto.setLastTransaction(new WalletTransactionHistoryDto(getLastWalletTransactionHistory(wallet.get().getId())));
-            return Optional.of(walletDto);
-        } else {
-            return Optional.empty();
-        }
+        return wallet.flatMap(this::createWalletDtoResponse);
     }
 
     @Override
@@ -111,7 +101,7 @@ public class WalletServiceInterface implements WalletService {
             walletDb = updateWalletBalance(transactionDto, walletDb, true);
 
             //Add the transaction to transactions history
-            WalletTransactionHistory transactionHistory = addTransactionHistory(walletId, transactionDto, TransactionType.TYPE_CHARGE);
+            WalletTransactionHistory transactionHistory = addTransactionHistory(walletId, transactionDto, TransactionType.TYPE_RECHARGE);
 
             //Return the walletDto
             WalletDto walletDto = new WalletDto(walletDb);
@@ -120,6 +110,16 @@ public class WalletServiceInterface implements WalletService {
         } else {
             return Optional.empty();
         }
+    }
+
+    private Optional<WalletDto> createWalletDtoResponse(Wallet wallet) {
+        WalletDto walletDto = new WalletDto(wallet);
+        WalletTransactionHistory lastWalletTransactionHistory = getLastWalletTransactionHistory(wallet.getId());
+        if (lastWalletTransactionHistory != null) {
+            walletDto.setLastTransaction(new WalletTransactionHistoryDto(lastWalletTransactionHistory));
+        }
+        return Optional.of(walletDto);
+
     }
 
     private Wallet updateWalletBalance(TransactionDto transactionDto, Wallet walletDb, Boolean toBeAdded) {
@@ -135,13 +135,13 @@ public class WalletServiceInterface implements WalletService {
     }
 
     private WalletTransactionHistory addTransactionHistory(long walletId, TransactionDto transactionDto, String transactionType) {
-        WalletTransactionHistory transactionHistory = new WalletTransactionHistory();
-        transactionHistory.setType(transactionType);
-        transactionHistory.setTimestamp(Instant.now());
-        transactionHistory.setRequestTimestamp(Instant.ofEpochMilli(transactionDto.getRequestTimestamp()));
-        transactionHistory.setQuantity(transactionDto.getAmount());
-        transactionHistory.setWalletId(walletId);
-        transactionHistory.setTransactionId(transactionDto.getTransactionId());
+        var transactionHistory = WalletTransactionHistory.builder()
+                .type(transactionType)
+                .timestamp(Instant.now())
+                .requestTimestamp(Instant.ofEpochMilli(transactionDto.getRequestTimestamp()))
+                .quantity(transactionDto.getAmount())
+                .walletId(walletId)
+                .transactionId(transactionDto.getTransactionId()).build();
         _walletTransactionHistoryRepository.save(transactionHistory);
         return transactionHistory;
     }
